@@ -17,3 +17,17 @@ let motion=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function setMotion(on){motion=on;document.body.classList.toggle('motion-off',!on);motionButton.setAttribute('aria-pressed',String(on));motionButton.textContent=on?'로고 움직임 끄기':'로고 움직임 켜기';motionButton.setAttribute('aria-label',motionButton.textContent)}
 setMotion(motion);motionButton.onclick=()=>setMotion(!motion);
 window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',e=>{if(e.matches)setMotion(false)});
+
+// Enlarge every content photograph, including the hero and plan illustrations.
+document.querySelectorAll('main img:not(#photo-dialog img)').forEach(img=>{
+ if(img.closest('[data-photo]'))return;
+ img.classList.add('expandable-image');img.tabIndex=0;img.setAttribute('role','button');img.setAttribute('aria-label',img.alt+' · 확대 보기');
+ const open=()=>{photoDialog.querySelector('img').src=img.currentSrc||img.src;photoDialog.querySelector('img').alt=img.alt;photoDialog.showModal()};
+ img.addEventListener('click',open);img.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+});
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+if('IntersectionObserver' in window&&!reducedMotion.matches){
+ const revealObserver=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');revealObserver.unobserve(entry.target)}})},{threshold:.08,rootMargin:'0px 0px 30px 0px'});
+ document.querySelectorAll('.section-title,.talk-layout,.auction-grid,.business-cards,.launch,.observations,.photo-grid,.video-grid').forEach(el=>{el.classList.add('scroll-reveal');revealObserver.observe(el)});
+ reducedMotion.addEventListener('change',e=>{if(e.matches){document.querySelectorAll('.scroll-reveal').forEach(el=>el.classList.add('visible'));revealObserver.disconnect()}});
+}
