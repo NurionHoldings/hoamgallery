@@ -6,3 +6,14 @@ document.querySelectorAll('[data-video]').forEach(b=>b.onclick=async()=>{const v
 document.querySelectorAll('video').forEach(v=>v.addEventListener('error',()=>document.getElementById('media-status').textContent='영상을 불러오지 못했습니다. 연결을 확인한 뒤 다시 시도하세요.'));
 document.getElementById('download').onclick=()=>{const text=['호암갤러리 사업 운영 계획','1층 TTC ZONE / 2층 고미술품 작품 경매장','TTC = Table Talk Cafe / 티티씨 테이블톡카페','대화는 자유롭게, 연결은 서로의 동의로.','',...Object.entries(plans).flatMap(([n,p])=>[n+'층 '+p.title,p.intro,'구역: '+p.spaces.join(' · '),'운영: '+p.program.join('\n'),'확인: '+p.checks.join('\n'),'']),'통합 수익 구조','카페: 커피·음료·디저트 판매. 소셜·문화 프로그램 유료 운영 여부 미확정.','경매: 구매자·판매자 수수료 구분. 직접 소유 작품 판매와 위탁 경매 별도 관리.','투자금·매출·수익률·면적·개장일 미확정. 실측·수요·비용 자료 확보 후 사업 수지 작성.','TTC 운영 원칙','매장 한정 QR 인증·당일 닉네임·안전수칙 동의','정형 인사 요청·수락 후 1:1 대화','거절·무응답 후 반복 요청 제한 / 조용히 이용·일행끼리 상태 외부 요청 차단','성적 발언·욕설·협박·개인정보 강요 금지 / 차단·신고·직원 도움','소셜 타임·매칭존 성인 확인 / 퇴장·만료 시 세션 종료','이 사이트는 사업계획 안내. 실제 TTC Connect와 온라인 경매는 별도 운영 시스템 연동 필요.','근거: 사용자 제공 TTC 사업계획·프로그램 기획·프랜차이즈 제안·브랜드 소개 및 현장 사진 2장·영상 3편.'].join('\n');const u=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download='hoamgallery-business-plan.txt';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
 document.getElementById('print').onclick=()=>{const current=document.querySelector('[data-floor].active').dataset.floor;const detail=document.getElementById('floor-detail');const original=detail.innerHTML;render(1);const one=detail.innerHTML;render(2);detail.innerHTML=one+'<hr>'+detail.innerHTML;const cleanup=()=>{detail.innerHTML=original;render(current);window.removeEventListener('afterprint',cleanup)};window.addEventListener('afterprint',cleanup);window.print()};
+
+const menuButton=document.getElementById('menu-toggle'),mainNav=document.getElementById('main-nav');
+function closeMenu(){menuButton.setAttribute('aria-expanded','false');mainNav.classList.remove('open')}
+menuButton.onclick=()=>{const open=menuButton.getAttribute('aria-expanded')!=='true';menuButton.setAttribute('aria-expanded',String(open));mainNav.classList.toggle('open',open)};
+mainNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenu();if(document.activeElement?.closest('#main-nav'))menuButton.focus()}});
+const motionButton=document.getElementById('logo-motion');
+let motion=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function setMotion(on){motion=on;document.body.classList.toggle('motion-off',!on);motionButton.setAttribute('aria-pressed',String(on));motionButton.textContent=on?'로고 움직임 끄기':'로고 움직임 켜기';motionButton.setAttribute('aria-label',motionButton.textContent)}
+setMotion(motion);motionButton.onclick=()=>setMotion(!motion);
+window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',e=>{if(e.matches)setMotion(false)});
